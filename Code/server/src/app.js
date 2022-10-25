@@ -47,28 +47,27 @@ app.get('/status', (req, res) => {
  *       200:
  *         description: Retrieves db status
  */
-app.get('/api/getDBStatus', (req, res) => {
+app.get('/api/getDBStatus', async (req, res) => {
   // connect to psql
-  const connectDb = async () => {
-    try {
-      const pool = new Pool({
-        user: process.env.DB_USER,
-        host: process.env.DB_HOST,
-        database: process.env.DB_NAME,
-        password: process.env.DB_PASSWORD,
-        port: process.env.DB_PORT,
-      });
+  try {
+    const pool = new Pool({
+      user: process.env.DB_USER,
+      host: process.env.DB_HOST,
+      database: process.env.DB_NAME,
+      password: process.env.DB_PASSWORD,
+      port: process.env.DB_PORT,
+    });
 
-      await pool.connect();
-      const res = await pool.query('SELECT * FROM pg_catalog.pg_tables;');
-      console.log(res);
-      await pool.end();
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  connectDb();
+    await pool.connect();
+    const resp = await pool.query('SELECT * FROM pg_catalog.pg_tables;');
+    // await pool.end();
+    res.send({
+      resp,
+      message: 'hey'
+    });
+  } catch (error) {
+    console.log(error);
+  }
 });
 
 /**
