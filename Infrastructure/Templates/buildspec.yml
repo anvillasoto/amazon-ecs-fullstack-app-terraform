@@ -16,8 +16,12 @@ phases:
         else
           echo "Server build, adding ECS Task Role to the task definition file"
           sed -i "3i\"taskRoleArn\": \"arn:aws:iam::<AWS_ACCOUNT_ID>:role/<ECS_TASK_ROLE>\"," ./Infrastructure/Templates/taskdef.json
-          echo "Replacing table name in the server function"
-          sed -i "s|DYNAMODB_TABLE|$DYNAMODB_TABLE|g" ./Code/server/src/app.js
+          echo "Add environment variables in the server code directory"
+          sed -i "s|<DB_USER>|$DB_USER|g" ./Infrastructure/Templates/.env
+          sed -i "s|<DB_HOST>|$DB_HOST|g" ./Infrastructure/Templates/.env
+          sed -i "s|<DB_PASSWORD>|$DB_PASSWORD|g" ./Infrastructure/Templates/.env
+          sed -i "s|<DB_NAME>|$DB_NAME|g" ./Infrastructure/Templates/.env
+          cp ./Infrastructure/Templates/.env $FOLDER_PATH
           echo "Adding Swagger host"
           sed -i "s|<SERVER_ALB_URL>|$SERVER_ALB_URL|g" ./Code/server/src/swagger/swagger.js
         fi

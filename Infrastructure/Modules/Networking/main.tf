@@ -56,6 +56,16 @@ resource "aws_subnet" "private_subnets_server" {
   }
 }
 
+resource "aws_subnet" "private_subnets_db" {
+  count             = 2
+  availability_zone = data.aws_availability_zones.az_availables.names[count.index]
+  vpc_id            = aws_vpc.aws_vpc.id
+  cidr_block        = cidrsubnet(aws_vpc.aws_vpc.cidr_block, 7, count.index + 7)
+  tags = {
+    Name = "private_subnet_db_${count.index}_${var.name}"
+  }
+}
+
 # ------- Internet Gateway -------
 resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.aws_vpc.id
@@ -121,6 +131,12 @@ resource "aws_route_table_association" "rt_assoc_priv_subnets_client" {
 resource "aws_route_table_association" "rt_assoc_priv_subnets_server" {
   count          = 2
   subnet_id      = aws_subnet.private_subnets_server[count.index].id
+  route_table_id = aws_route_table.rt_private.id
+}
+
+resource "aws_route_table_association" "rt_assoc_priv_subnet_db" {
+  count          = 2
+  subnet_id      = aws_subnet.private_subnets_db[count.index].id
   route_table_id = aws_route_table.rt_private.id
 }
 

@@ -65,8 +65,27 @@ variable "ecs_task_role" {
   default     = "null"
 }
 
-variable "dynamodb_table_name" {
-  description = "The name of Dynamodb table used by the server application"
-  type        = string
-  default     = ""
+variable "db_host" {
+  default     = "localhost"
+  description = "The database hostname (for backend only)"
+}
+
+variable "db_name" {
+  default     = "theframe"
+  description = "The database name (for backend only)"
+}
+
+variable "db_username" {
+  default     = "postgres"
+  description = "The username of the database (for backend only)"
+}
+
+variable "db_password" {
+  default     = "postgres"
+  description = "The password of the database (for backend only)"
+}
+
+variable "db_port" {
+  default     = "5432"
+  description = "DB port (for backend only)"
 }

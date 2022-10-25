@@ -132,7 +132,6 @@ module "ecs_role" {
   create_ecs_role    = true
   name               = var.iam_role_name["ecs"]
   name_ecs_task_role = var.iam_role_name["ecs_task_role"]
-  dynamodb_table     = [module.dynamodb_table.dynamodb_table_arn]
 }
 
 # ------- Creating a IAM Policy for role -------
@@ -312,7 +311,13 @@ module "codebuild_server" {
   service_port           = var.port_app_server
   ecs_role               = var.iam_role_name["ecs"]
   ecs_task_role          = var.iam_role_name["ecs_task_role"]
-  dynamodb_table_name    = module.dynamodb_table.dynamodb_table_name
+  db_host                = module.postgresql.db_host
+  db_username            = module.postgresql.db_username
+  db_password            = module.postgresql.db_password
+  db_name                = module.postgresql.db_name
+  db_port                = var.db_port
+
+  depends_on = [module.postgresql]
 }
 
 # ------- Creating the client CodeBuild project -------
@@ -384,8 +389,14 @@ module "s3_assets" {
   bucket_name = "assets-${var.aws_region}-${random_id.RANDOM_ID.hex}"
 }
 
-# ------- Creating Dynamodb table by the Back-end -------
-module "dynamodb_table" {
-  source = "./Modules/Dynamodb"
-  name   = "assets-table-${var.environment_name}"
+# ------- Creating PostgreSQL table by the Back-end -------
+module "postgresql" {
+  source         = "./Modules/RDS"
+  environment    = var.environment_name
+  vpc_id         = module.networking.aws_vpc
+  multi_az       = true
+  db_name        = var.db_name
+  db_username    = var.db_username
+  db_password    = var.db_password
+  subnet_ids     = [module.networking.private_subnets_db[0], module.networking.private_subnets_db[1]]
 }
